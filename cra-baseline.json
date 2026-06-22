@@ -1,0 +1,84 @@
+{
+  "_about": "Baseline state for the CRA notified-bodies monitor. The routine reads this file, compares the current ACTIVE list against 'current_snapshot', commits an updated version on every successful run, and alerts only on additions/removals or check failure. Do NOT render the NANDO page with a headless browser; use the recorded search_request below.",
+  "legislation": {
+    "name": "Regulation (EU) 2024/2847 (Cyber Resilience Act)",
+    "legislationId": "167953",
+    "notificationStatusId": "1",
+    "status_label": "Active",
+    "human_view": "https://webgate.ec.europa.eu/single-market-compliance-space/notified-bodies/notified-body-list?filter=legislationId:167953,notificationStatusId:1"
+  },
+  "search_request": {
+    "_note": "Reuse this exact request. Do not re-derive. The human filter URL is an Angular SPA; the data API is a multipart POST.",
+    "method": "POST",
+    "endpoint": "https://webgate.ec.europa.eu/es/search-api/rest/search",
+    "content_type": "multipart/form-data",
+    "user_agent": "Mozilla/5.0",
+    "form_fields": {
+      "text": "*",
+      "pageSize": "1000",
+      "apiKey": "e2418f53-ea99-4bc4-a12f-c4cdd419de2c",
+      "_apiKey_note": "Public default NANDO key baked into the site's compiled JS. Not a secret, safe to reuse.",
+      "query": {
+        "_sent_as": "application/json part",
+        "bool": {
+          "must": [
+            { "term": { "csType": "nando_notification" } },
+            { "term": { "notificationLegislationId": "167953" } },
+            { "term": { "notificationStatusId": "1" } }
+          ]
+        }
+      }
+    },
+    "parsing": {
+      "_note": "Results are per notification ROW (one row per linked product/specification), NOT one row per body. Multiple rows can share one body.",
+      "dedupe_by": "displayTypeAndNumber",
+      "alt_dedupe_by": "organizationRefeCd",
+      "response_shape": "{ totalResults: N, results: [ { metadata: { jsonDoc: [ \"<JSON string>\" ] } } ] }",
+      "per_result": "Parse metadata.jsonDoc[0] as JSON. Fields of interest: organizationName, organizationCountryName, displayTypeAndNumber, notificationStatusId, notificationLegislationId.",
+      "body_fields": {
+        "name": "organizationName",
+        "number": "displayTypeAndNumber",
+        "member_state": "organizationCountryName"
+      }
+    }
+  },
+  "canary": {
+    "_note": "Sanity check against a legislation known to have active bodies. If canary returns 0, the pipeline is BROKEN: alert that the check failed and STOP. Trust the CRA result only when canary > 0.",
+    "name": "Directive 2014/53/EU (Radio Equipment Directive, RED)",
+    "legislationId": "154428",
+    "notificationStatusId": "1",
+    "last_observed_raw_rows": 360,
+    "last_observed_date": "2026-06-22"
+  },
+  "legislation_id_lookup": {
+    "_note": "To map legislation names to IDs, query the same endpoint with { term: { csType: 'nando_legislation' } } (no other filter, pageSize ~100).",
+    "confirmed": {
+      "167953": "Regulation (EU) 2024/2847 (CRA)",
+      "154428": "Directive 2014/53/EU Radio equipment (RED) — canary"
+    }
+  },
+  "current_snapshot": {
+    "date": "2026-06-22",
+    "count": 0,
+    "bodies": [],
+    "canary_ok": true,
+    "canary_raw_rows": 360,
+    "note": "No change vs 2026-06-21 baseline (0 active bodies). Request pipeline verified working."
+  },
+  "history": [
+    {
+      "date": "2026-06-21",
+      "count": 0,
+      "bodies": [],
+      "event": "Baseline established. First run; this snapshot is the reference point. legislationId 167953 and notificationStatusId 1 = Active verified via site filter dropdowns."
+    },
+    {
+      "date": "2026-06-22",
+      "count": 0,
+      "bodies": [],
+      "canary_ok": true,
+      "canary_raw_rows": 360,
+      "event": "No change. API request recipe derived and recorded. Canary (RED) OK."
+    }
+  ]
+}
