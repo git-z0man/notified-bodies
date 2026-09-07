@@ -71,5 +71,6 @@ The machine-readable state lives in `cra-baseline.json`. This file is an append-
 | 2026-09-02 | 0 | No change | OK (365 raw rows) |
 | 2026-09-03 | 0 | No change | OK (366 raw rows) |
 | 2026-09-04 | 0 | No change | OK (366 raw rows) |
+| 2026-09-07 | 0 | No change | OK (366 raw rows) |
 
-**Letzte erfolgreiche Prüfung:** 2026-09-04T07:16:32+00:00
+**Letzte erfolgreiche Prüfung:** 2026-09-07T07:20:33+00:00
